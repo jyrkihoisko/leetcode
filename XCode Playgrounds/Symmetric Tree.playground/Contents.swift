@@ -16,65 +16,47 @@ class Solution {
         guard root != nil else { return true }
 
         // iterative
-        
+        print("IsSymmetric starts")
         var queue = [TreeNode]()
-        var ar = [Int]()
-        queue.append(root!)
-        //var childCount = 0
-        var currentLevelChildExpectancy = 1
-        var nextLevelChildExpectancy = 0
-        var level = 2
+        var queue2 = queue
         
-        while !queue.isEmpty {
+        queue.append(root!)
+        queue2.append(root!)
+        
+        while !queue.isEmpty && !queue2.isEmpty {
 
             let node = queue.removeFirst()
-            print("node \(node.val)")
+            let node2 = queue2.removeFirst()
             
+            print("node1: \(node.val)")
+            print("node2: \(node2.val)")
+            var ar1 = [Int]()
+            var ar2 = [Int]()
+
             if node.left != nil {
-                print("appending \(node.left!.val)")
-                ar.append(node.left!.val)
+                print("queue1: node \(node.val) appending left child: \(node.left!.val)")
+                ar1.append(node.left!.val)
                 queue.append(node.left!)
-                nextLevelChildExpectancy += 1
-            } else /*if node.right != nil*/ {
-                ar.append(-1)
-            }
+            } else { ar1.append(-1) }
             if node.right != nil {
-                print("appending \(node.right!.val)")
-                ar.append(node.right!.val)
+                print("queue1: node \(node.val) appending right child: \(node.right!.val)")
+                ar1.append(node.right!.val)
                 queue.append(node.right!)
-                nextLevelChildExpectancy += 1
-            } else /*if node.left != nil*/ {
-                ar.append(-1) // empty child
-            }
-            currentLevelChildExpectancy -= 1
-            if currentLevelChildExpectancy == 0 { // level ended
-                print("all current level \(level) children traversed; next level child expectancy: \(nextLevelChildExpectancy)")
-                currentLevelChildExpectancy = nextLevelChildExpectancy
-                nextLevelChildExpectancy = 0
-                level += 1
-                if !isMirror(ar) {
-                    print("ar no longer mirror: \(ar)")
-                    return false
-                }
-                //childCount = 0
-                ar = []
-            }
+            } else { ar1.append(-1) }
+            if node2.right != nil {
+                print("queue2: node2 \(node2.val) appending right child: \(node2.right!.val)")
+                ar2.append(node2.right!.val)
+                queue2.append(node2.right!)
+            } else { ar2.append(-1) }
+            if node2.left != nil {
+                print("queue2: node2 \(node.val) appending left child: \(node2.left!.val)")
+                ar2.append(node2.left!.val)
+                queue2.append(node2.left!)
+            } else { ar2.append(-1) }
+            
+            if ar1 != ar2 { return false }
         }
-        if currentLevelChildExpectancy > 0 {
-        //if childCount > 0 {
-            return isMirror(ar)
-        }
-        return true
-    }
-    
-    func isMirror(_ ar: [Int]) -> Bool {
-        print("isMirror: ar: \(ar)")
-        if ar.count == 0 { return true }
-        let count = ar.count
-        for i in 0..<count / 2 {
-            if ar[i] != ar[count - i - 1] { return false }
-        }
-        return true
+        return queue.count != queue2.count ? false : true
     }
 }
 
@@ -93,7 +75,7 @@ func createTree(_ ar: [Int]) -> TreeNode {
         if !myAr.isEmpty {
             let n = myAr.removeFirst()
             if n != -1234 {// null
-                print("\(node.val) left child: \(n)")
+                print("Node: \(node.val) left child: \(n)")
                 node.left = TreeNode(n)
                 q.append(node.left!)
             }
@@ -101,7 +83,7 @@ func createTree(_ ar: [Int]) -> TreeNode {
         if !myAr.isEmpty {
             let n = myAr.removeFirst()
             if n != -1234 {// null
-                print("\(node.val) right child: \(n)")
+                print("Node: \(node.val) right child: \(n)")
                 node.right = TreeNode(n)
                 q.append(node.right!)
             }
@@ -110,56 +92,10 @@ func createTree(_ ar: [Int]) -> TreeNode {
     
     return firstNode
 }
-//}
 
-let s1 = TreeNode(1)
-let s2 = TreeNode(2)
-let s3 = TreeNode(2)
-let s4 = TreeNode(3)
-let s5 = TreeNode(3)
-let s6 = TreeNode(4)
-let s7 = TreeNode(5)
-let s8 = TreeNode(5)
-let s9 = TreeNode(4)
-let sa = TreeNode(8)
-let sb = TreeNode(9)
-let sc = TreeNode(9)
-let sd = TreeNode(8)
-
-
-//s1.left = s2
-//s1.right = s3
-
-s2.left = s4 // 3
-s2.right = s5 // 3
-
-//s3.left = s7 //4
-//s3.right = s6 //
-
-s4.left = s6 //4
-s4.right = s7 //5
-
-s5.left = s8 //5
-s5.right = s9 //4
-
-//s6 null null
-s7.left = sa //8
-s7.right = sb //9
-
-//s8 null null
-s9.left = sc //9
-s9.right = sd //8
-
-// [2,3,3, 4,5,5,4, null,null,8,9,null,null,9,8]
-
-let s334 = TreeNode(334)
-let s277 = TreeNode(277)
-let s507 = TreeNode(507)
-let s285 = TreeNode(285)
-let s678 = TreeNode(678)
 let test1Exp = true
-let myTestAr = [3,4,4,5,-1234,-1234,5,6,-1234,-1234,6], output1 = true
-let input2 = [3,4,4,5,-1234,-1234,5,6,-1234,-1234,6], output2 = true
+let myTestAr = [1,2,2, -1234,3,-1234,3], output1 = false
+let input2 = [3, 4,4, 5,-1234,-1234,5, 6,-1234,-1234,6], output2 = true //[3,4,4,5,null,null,5,6,null,null,6]
 let input3 = [2,3,3,4,5,5,4,-1234,-1234,8,9,-1234,-1234,9,8], output3 = false // -1234 denotes null
 let input4 = [Int](), output4 = true
 let test1Node = createTree(myTestAr)
