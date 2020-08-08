@@ -1,46 +1,22 @@
 class Solution {
-    func findKthPositive(_ arrr: [Int], _ k: Int) -> Int {
-    
+    func findKthPositive(_ arr: [Int], _ k: Int) -> Int {
         var l = 0
-        var ar = arrr
-        var a = false
-        let v = arrr.last!
-        print("last; \(arr.last!)")
-        ar.append(v + k)
-        
-        var expectedNumber = 0
-        for i in 0..<ar.count {
-            expectedNumber += 1
+        var ptr = 0
 
-            print("ar[i] now: \(ar[i]); expectedNymber: \(expectedNumber); l: \(l)")
-            if ar[i] == expectedNumber && ar[i] != (v+1) {
-                print("arr i was \(expectedNumber) as expected")
-                continue
-                
-            } else if ar[i] != expectedNumber {
-                print("\(ar[i]) expected")
-                while expectedNumber < ar[i] {
-                    l += 1
-                    expectedNumber += 1
-                    print("  exp: \(expectedNumber); l= \(l)")
-
-                    if ar[i] == k && l == k {
-                        // we added k
-                        print("  hey!!!!!!!!: \(expectedNumber)")
-                        return expectedNumber - 1
-                    }
-                    if l == k {
-                        print("  l = \(l); expected: \(expectedNumber - 1)")
-                        return expectedNumber - 1
-                    }
-                    
-                }
+        for i in 1..<Int.max {
+            print("i: \(i)")
+            if ptr < arr.count && i == arr[ptr] {
+                print("\(i) was found in array")
+                ptr += 1
+            } else {
+                l += 1
+                print("error count: \(l); currNum: \(i)")
+                if l == k { print("currNum: \(i)"); return i }
             }
         }
-        return expectedNumber
+        return 0
     }
 }
-
 
 
 
@@ -54,6 +30,7 @@ let s = Solution()
 assert(s.findKthPositive(arr, k) == o)
 assert(s.findKthPositive(arr2, k2) == o2)
 assert(s.findKthPositive(arr4, k4) == o4)
+print("tests done")
 
 
 /*
