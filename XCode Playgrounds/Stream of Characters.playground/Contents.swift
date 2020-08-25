@@ -1,87 +1,61 @@
 import Foundation
 
 class StreamChecker {
-    class LetterNode: CustomStringConvertible {
+    class TrieNode: CustomStringConvertible {
         var letter: Character
-        var children: [LetterNode]
+        var children: [Character : TrieNode]
         var wordEnd = false
         init(_ l: Character) {
             letter = l
-            children = [LetterNode]()
+            children = [Character : TrieNode]()
         }
         var description: String { return "\(letter) wordEnd: \(wordEnd): \(children)" }
     }
 
-    var trieRoot: LetterNode
-    var queryPointers: [LetterNode?]
+    var trieRoot: TrieNode
+    var streamBuffer: [Character]
+    var maxWordLength = 0
     
     init(_ words: [String]) {
-        
-        trieRoot = LetterNode(Character(" "))
-        queryPointers = [LetterNode?]()
-        
+        trieRoot = TrieNode(Character(" "))
         for word in words {
             var trieParent = trieRoot
-            for char in word {
-                var found = false
+            maxWordLength = max(maxWordLength, word.count)
+            for char in word.reversed() {
                 print("handling \(char) of \(word)")
-                for child in trieParent.children {
-                    if child.letter == char {
-                        print("  found existing child for \(char)")
-                        trieParent = child
-                        found = true
-                        break
-                    }
-                }
-                if found == false {
-                    let ln = LetterNode(char)
+                if let child = trieParent.children[char] {
+                    print("  found existing child for \(char)")
+                    trieParent = child
+                } else {
+                    let ln = TrieNode(char)
                     print("adding \(char) to trieParent: \(trieParent.letter)")
-                    trieParent.children.append(ln)
+                    trieParent.children[char] = ln
                     trieParent = ln
                 }
             }
             print("TrieParent: \(trieParent.letter); setting wordEnd")
             trieParent.wordEnd = true
         }
-        print(trieRoot)
-        print("Trie root: \(trieRoot); children: \(trieRoot.children)")
+        streamBuffer = [Character]()
+        streamBuffer.reserveCapacity(maxWordLength)
     }
     
     func query(_ letter: Character) -> Bool {
+        streamBuffer.append(letter)
+        if streamBuffer.count == maxWordLength + 1 {
+            streamBuffer.removeFirst() // ensure we have a deterministic buffer size.
+        }
+        var ptr = trieRoot
         
-        // First check if any new queries can be started
-        for child in trieRoot.children {
-            if letter == child.letter {
-                queryPointers.append(trieRoot)
+        for char in streamBuffer.reversed() {
+            if let child = ptr.children[char] {
+                ptr = child
+                if child.wordEnd { return true }
+            } else {
+                return false
             }
         }
-
-        // Then check all existing queries
-        print("active query pointers: \(queryPointers.count)")
-        var ret = false
-        var queriesToRemove = [Int]()
-        for (qi, queryPointer) in queryPointers.enumerated() {
-            var found = false
-            for (i, child) in queryPointer!.children.enumerated() {
-                if child.letter == letter {
-                    print(" \(letter) found; updating query Pointer")
-                    found = true
-                    queryPointers[qi] = child
-                    if child.wordEnd == true {
-                        print("Found and completed word ending in '\(child.letter)'")
-                        ret = true
-                    }
-                    break
-                }
-            }
-            if found == false { print("removing query"); queriesToRemove.append(qi) }
-        }
-        queriesToRemove.sort(by: >)
-        for qry in queriesToRemove {
-            queryPointers.remove(at: qry)
-        }
-        
-        return ret
+        return false
     }
 }
 
