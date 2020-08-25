@@ -10,10 +10,13 @@ class Solution {
             if i % 2 == 0 {
                 if ar1ptr < 0 { continue }
                 nums[i] = mySorted[ar1ptr]
+                // Note: We interleave these two sub-sections from end to begin! This is essential!
+                // (See test input: "4,5,5,6" and "4,4,5")
                 ar1ptr -= 1
             } else {
                 if ar2ptr >= nums.count { continue }
                 nums[i] = mySorted[ar2ptr]
+                // Note: We interleave these two sub-sections from end to begin! This is essential!
                 ar2ptr -= 1
             }
         }
