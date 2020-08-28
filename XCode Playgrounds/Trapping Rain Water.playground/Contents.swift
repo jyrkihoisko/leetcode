@@ -1,76 +1,105 @@
 class Solution {
     func trap(_ h: [Int]) -> Int {
         
-        if h.count < 3 { return 0 }
-
+        var left_max = 0
+        var right_max = 0
         var left = 0
-        var leftWallFound = false
-
-        var level = 0
-        var trappedWater = 0
-        var trappedWaterInLevel = 0
-        var potentiallyTrappedWater = 0
-        var minLevelBefore = Int.max
-        var minLevel = Int.max
-        var waterStack = 0
+        var right = h.count - 1
+        var total_water = 0
         
-        for val in h {
-            minLevelBefore = min(val, minLevelBefore)
-        }
-        for val in h {
-            if val == minLevelBefore { continue }
-            minLevel = min(val, minLevel)
-        }
-        
-        repeat {            
-            level = minLevelBefore
-            waterStack = minLevel - minLevelBefore
-            minLevelBefore = minLevel
-            minLevel = Int.max
-
-            potentiallyTrappedWater = 0
-            trappedWaterInLevel = 0
-            
-            left = 0
-            leftWallFound = false
-            
-            while left <= h.count - 1 {
-                print("  analysing x = \(left); value \(h[left]); waterStack: \(waterStack); minLevel: \(minLevel); minLevelBefore: \(minLevelBefore), level: \(level)")
-                if h[left] > minLevelBefore {
-                    minLevel = min(minLevel, h[left])
-                    print("minLevel now \(minLevel)")
-                }
-                
-                if h[left] - level <= 0 {
-                    if !leftWallFound {
-                        // move right to find a wall
-                    } else {
-                        // left wall found; water potentially trapped
-                        potentiallyTrappedWater += waterStack
-                    }
-                } else if h[left] - level > 0 {
-                    if leftWallFound {
-                        print(" collected trapped water: \(potentiallyTrappedWater)")
-                        trappedWaterInLevel += potentiallyTrappedWater
-                        potentiallyTrappedWater = 0
-                    } else {
-                        print("    left wall found at \(left)")
-                        leftWallFound = true
-                    }
+        while left < right {
+            if h[left] <= h[right] {
+                if h[left] > left_max {
+                    left_max = h[left]
+                } else {
+                    total_water += left_max - h[left]
                 }
                 left += 1
-
+            } else {
+                if h[right] > right_max {
+                    right_max = h[right]
+                } else {
+                    total_water += right_max - h[right]
+                }
+                right -= 1
             }
-            
-            print("on level \(level) trapped water: \(trappedWaterInLevel)")
-            print("waterStack now = \(waterStack); next: \(minLevel - minLevelBefore)")
-            waterStack = minLevel - minLevelBefore
-            trappedWater += trappedWaterInLevel
-        } while minLevel < Int.max
-        print("total trapped water \(trappedWater)")
-        return trappedWater
+        }
+        return total_water
     }
 }
+//
+//
+//
+//        if h.count < 3 { return 0 }
+//
+//        var left = 0
+//        var leftWallFound = false
+//
+//        var level = 0
+//        var trappedWater = 0
+//        var trappedWaterInLevel = 0
+//        var potentiallyTrappedWater = 0
+//        var minLevelBefore = Int.max
+//        var minLevel = Int.max
+//        var waterStack = 0
+//
+//        for val in h {
+//            minLevelBefore = min(val, minLevelBefore)
+//        }
+//        for val in h {
+//            if val == minLevelBefore { continue }
+//            minLevel = min(val, minLevel)
+//        }
+//
+//        repeat {
+//            level = minLevelBefore
+//            waterStack = minLevel - minLevelBefore
+//            minLevelBefore = minLevel
+//            minLevel = Int.max
+//
+//            potentiallyTrappedWater = 0
+//            trappedWaterInLevel = 0
+//
+//            left = 0
+//            leftWallFound = false
+//
+//            while left <= h.count - 1 {
+//                print("  analysing x = \(left); value \(h[left]); waterStack: \(waterStack); minLevel: \(minLevel); minLevelBefore: \(minLevelBefore), level: \(level)")
+//                if h[left] > minLevelBefore {
+//                    minLevel = min(minLevel, h[left])
+//                    print("minLevel now \(minLevel)")
+//                }
+//
+//                if h[left] - level <= 0 {
+//                    if !leftWallFound {
+//                        // move right to find a wall
+//                    } else {
+//                        // left wall found; water potentially trapped
+//                        potentiallyTrappedWater += waterStack
+//                    }
+//                } else if h[left] - level > 0 {
+//                    if leftWallFound {
+//                        print(" collected trapped water: \(potentiallyTrappedWater)")
+//                        trappedWaterInLevel += potentiallyTrappedWater
+//                        potentiallyTrappedWater = 0
+//                    } else {
+//                        print("    left wall found at \(left)")
+//                        leftWallFound = true
+//                    }
+//                }
+//                left += 1
+//
+//            }
+//
+//            print("on level \(level) trapped water: \(trappedWaterInLevel)")
+//            print("waterStack now = \(waterStack); next: \(minLevel - minLevelBefore)")
+//            waterStack = minLevel - minLevelBefore
+//            trappedWater += trappedWaterInLevel
+//        } while minLevel < Int.max
+//        print("total trapped water \(trappedWater)")
+//        return trappedWater
+//    }
+//}
 
 
 let i = [0,1,0,2,1,0,1,3,2,1,2,1], o = 6
