@@ -3,39 +3,24 @@ class Solution {
     // This is not the fastest solution for this particular problem.
     
     func generateParenthesis(_ n: Int) -> [String] {
-        class ParenthesisString {
-            var s = "", openCount = 0, closeCount = 0
-            init(_ s: String, _ a: Int, _ b: Int) {
-                self.s = s; openCount = a; closeCount = b
-            }
-        }
-
         var ret = [String]()
-        var q = [ParenthesisString]()
-        q.append(ParenthesisString("", 0,0))
-        
-        while !q.isEmpty {
-            let subStr = q.removeFirst()
-
-            if subStr.openCount == n && subStr.closeCount == n { ret.append(subStr.s); continue }
-            if subStr.openCount == subStr.closeCount {
-                subStr.s += "("
-                subStr.openCount += 1
-                q.append(subStr)
-            } else if subStr.openCount > subStr.closeCount {
-                let subStr2 = ParenthesisString(subStr.s, subStr.openCount, subStr.closeCount)
-                subStr2.s += ")"
-                subStr2.closeCount += 1
-                if subStr.openCount < n {
-                    subStr.s += "("
-                    subStr.openCount += 1
-                    q.append(subStr)
-                }
-                q.append(subStr2)
-            }
-        }
+        helper(n, 0, 0, "",  &ret)
         print(ret)
         return ret
+    }
+    
+    func helper(_ n: Int, _ openCount: Int, _ closeCount: Int, _ str: String, _ ret: inout [String]) {
+        //if openCount == n && closeCount == n {
+        if str.count == 2 * n {
+            ret.append(str)
+            return
+        }
+        if openCount < n {
+            helper(n, openCount + 1, closeCount, str + "(", &ret)
+        }
+        if closeCount < openCount {
+            helper(n, openCount , closeCount + 1, str + ")", &ret)
+        }
     }
 }
 
