@@ -1,40 +1,47 @@
 class Solution {
     func getHint(_ secret: String, _ guess: String) -> String {
+        print("----------")
         var bulls = 0
         var cows = 0
-        var histogram = [Character : Int]()
-        for schar in secret {
-            histogram[schar, default: 0] += 1
+        let s = secret.utf8CString
+        let g = guess.utf8CString
+        
+        var histogram = [CChar : Int]()
+        for i in 0..<s.count - 1 {
+            histogram[s[i], default: 0] += 1
         }
-
-        // first-pass for bulls
-        for (gi, gchar) in guess.enumerated() {
-            for (si, schar) in secret.enumerated() {
-                if schar == gchar && si == gi {
-                    bulls += 1
-                    histogram[gchar]! -= 1
-                    break
-                }
+        
+        // first-pass check all bulls
+        for i in 0..<g.count - 1 {
+            // first check if guess char exists
+            print("histogram: \(histogram), g[i]: \(g[i])")
+            if histogram[g[i], default: 0] == 0 { continue } // jump to next guess char
+            
+            if g[i] == s[i] {
+                print("bull found at i: \(i); \(g[i])")
+                bulls += 1
+                histogram[g[i], default: 1] -= 1
+                continue // step to next guess char
             }
         }
-        // second-pass for cows
-        here: for (gi, gchar) in guess.enumerated() {
-            // in the absence of subscript in String in swift, we have to do this stupid thing.
-            for (si, schar) in secret.enumerated() {
-                if schar == gchar && si == gi {
-                    continue here
-                }
-            }
+        
+        // second-pass check cows
+        for i in 0..<g.count - 1 {
+            // first check if guess char exists
+            if histogram[g[i], default: 0] == 0 { continue } // jump to next guess char
+            
+            // first check if this was bull scenario, skip it
+            if g[i] == s[i] { continue } // step to next guess char
 
-            // second-pass for cows
-            for (si, schar) in secret.enumerated() {
-                if schar == gchar && histogram[gchar, default: 0] > 0 {
-                    print("g: \(gchar), in gi: \(gi); si: \(si), histo: \(histogram)")
+            // otherwise check where the cow is.
+            for j in 0..<s.count - 1 {
+                if g[i] == s[j] {
                     cows += 1
-                    histogram[gchar]! -= 1
-                    continue here
+                    histogram[g[i], default: 1] -= 1
+                    break // cow found, continue next guess char
                 }
             }
+            
         }
 
         print("\(bulls)A\(cows)B")
