@@ -1,51 +1,27 @@
 class Solution {
     func getHint(_ secret: String, _ guess: String) -> String {
-        print("----------")
         var bulls = 0
-        var cows = 0
-        let s = secret.utf8CString
-        let g = guess.utf8CString
+        var bullsCows = 0
+        let s = Array(secret)
+        let g = Array(guess)
+        var histogram = [Character : Int]()
         
-        var histogram = [CChar : Int]()
-        for i in 0..<s.count - 1 {
+        // Calculate histogram
+        for i in 0..<s.count {
             histogram[s[i], default: 0] += 1
         }
         
-        // first-pass check all bulls
-        for i in 0..<g.count - 1 {
-            // first check if guess char exists
-            print("histogram: \(histogram), g[i]: \(g[i])")
-            if histogram[g[i], default: 0] == 0 { continue } // jump to next guess char
-            
-            if g[i] == s[i] {
-                print("bull found at i: \(i); \(g[i])")
-                bulls += 1
+        for i in 0..<g.count {
+            // first check if guess char exists; it is either bull or cow.
+            if histogram[g[i], default: 0] > 0 {
+                bullsCows += 1
                 histogram[g[i], default: 1] -= 1
-                continue // step to next guess char
+            }
+            if g[i] == s[i] {
+                bulls += 1
             }
         }
-        
-        // second-pass check cows
-        for i in 0..<g.count - 1 {
-            // first check if guess char exists
-            if histogram[g[i], default: 0] == 0 { continue } // jump to next guess char
-            
-            // first check if this was bull scenario, skip it
-            if g[i] == s[i] { continue } // step to next guess char
-
-            // otherwise check where the cow is.
-            for j in 0..<s.count - 1 {
-                if g[i] == s[j] {
-                    cows += 1
-                    histogram[g[i], default: 1] -= 1
-                    break // cow found, continue next guess char
-                }
-            }
-            
-        }
-
-        print("\(bulls)A\(cows)B")
-        return "\(bulls)A\(cows)B"
+        return "\(bulls)A\(bullsCows-bulls)B"
     }
 }
 
