@@ -1,41 +1,20 @@
 class Solution {
     func insert(_ intervals: [[Int]], _ newInterval: [Int]) -> [[Int]] {
         guard intervals.count > 0 else { return newInterval.count > 0 ? [newInterval] : intervals }
-        // Intervals are guaranteed to be sorted ascending by starting time.
-        var ptr = 0
-        var count = intervals.count
-        var interval = newInterval
+        var sorted = (intervals + [newInterval]).sorted { $0[0] < $1[0] }
+        var stack = [sorted.removeFirst()]
         
-        var processed = false
-        var stack = [[Int]]() //[intervals[0]]
-        
-        while ptr < count {
-            var currInterval = intervals[ptr]
+        for interval in sorted {
+            var stackTop = stack.removeLast()
             
-            if interval[0] < currInterval[0] && interval[1] < currInterval[0] && processed == false {
+            if interval[0] > stackTop[1] {
+                stack.append(stackTop)  // Intervals do not overlap
                 stack.append(interval)
-                stack.append(currInterval)
-                processed = true
-                print("added new interval \(interval) to stack \(ptr)")
-            } else if interval[1] <= currInterval[1] && processed == false { // overlap, curr larger
-                currInterval[0] = min(interval[0], currInterval[0]) // merge
-                stack.append(currInterval)
-                processed = true
-                print("merged at \(ptr); interval: \(interval); merged: \(currInterval)")
-            } else if interval[1] > currInterval[1] && interval[0] <= currInterval[1] { // overlap, new larger
-                interval[0] = min(interval[0], currInterval[0])
-                print("absorbed at \(ptr); interval: \(interval); orig: \(currInterval)")
             } else {
-                print("adding currInterval: \(currInterval) to stack")
-                stack.append(currInterval)
+                stackTop[1] = max(interval[1], stackTop[1])
+                stack.append(stackTop)  // Intervals overlap, merge
             }
-            ptr += 1
         }
-        if processed == false {
-            stack.append(interval)
-        }
-        
-        print(stack)
         return stack
     }
 }
@@ -57,7 +36,7 @@ let ic = [[2,5]], nic = [0,5], oc = [[0,5]]
 
 print("Tests started!")
 let s = Solution()
-//assert(s.insert(intervals, newInterval) == output)
+assert(s.insert(intervals, newInterval) == output)
 assert(s.insert(intervals2, newInterval2) == o2)
 assert(s.insert(intervals3, newInterval3) == o3)
 assert(s.insert(intervals4, newInterval4) == o4)
