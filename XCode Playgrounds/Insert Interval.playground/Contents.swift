@@ -1,42 +1,42 @@
 class Solution {
     func insert(_ intervals: [[Int]], _ newInterval: [Int]) -> [[Int]] {
-        var ret = intervals
-        
+        guard intervals.count > 0 else { return newInterval.count > 0 ? [newInterval] : intervals }
+        // Intervals are guaranteed to be sorted ascending by starting time.
         var ptr = 0
+        var count = intervals.count
         var interval = newInterval
-        var count = ret.count
+        
         var processed = false
+        var stack = [[Int]]() //[intervals[0]]
         
         while ptr < count {
-            var currInterval = ret[ptr]
-            if interval[0] < currInterval[0] && interval[1] < currInterval[0] {
-                ret.insert(interval, at: ptr)
+            var currInterval = intervals[ptr]
+            
+            if interval[0] < currInterval[0] && interval[1] < currInterval[0] && processed == false {
+                stack.append(interval)
+                stack.append(currInterval)
                 processed = true
-                print("inserted at \(ptr)")
-                break
-            }
-            if interval[1] <= currInterval[1] {
+                print("added new interval \(interval) to stack \(ptr)")
+            } else if interval[1] <= currInterval[1] && processed == false { // overlap, curr larger
                 currInterval[0] = min(interval[0], currInterval[0]) // merge
-                ret[ptr] = currInterval
+                stack.append(currInterval)
                 processed = true
                 print("merged at \(ptr); interval: \(interval); merged: \(currInterval)")
-                break
-            }
-            if interval[1] > currInterval[1] && interval[0] <= currInterval[1] {
+            } else if interval[1] > currInterval[1] && interval[0] <= currInterval[1] { // overlap, new larger
                 interval[0] = min(interval[0], currInterval[0])
-                ret.remove(at: ptr)
-                count -= 1
                 print("absorbed at \(ptr); interval: \(interval); orig: \(currInterval)")
             } else {
-                ptr += 1
+                print("adding currInterval: \(currInterval) to stack")
+                stack.append(currInterval)
             }
+            ptr += 1
         }
         if processed == false {
-            ret.append(interval)
+            stack.append(interval)
         }
         
-        print(ret)
-        return ret
+        print(stack)
+        return stack
     }
 }
 
@@ -57,7 +57,7 @@ let ic = [[2,5]], nic = [0,5], oc = [[0,5]]
 
 print("Tests started!")
 let s = Solution()
-assert(s.insert(intervals, newInterval) == output)
+//assert(s.insert(intervals, newInterval) == output)
 assert(s.insert(intervals2, newInterval2) == o2)
 assert(s.insert(intervals3, newInterval3) == o3)
 assert(s.insert(intervals4, newInterval4) == o4)
