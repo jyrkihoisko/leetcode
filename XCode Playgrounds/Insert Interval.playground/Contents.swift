@@ -1,20 +1,25 @@
 class Solution {
+    /*
+     Pre-sorting all elements and using stack as suggested by classic Computer Science theories.
+     Not the fastest run-time by any means, but short and sweet implementation. Due to value -type nature of Swift, we need to pop and push the last element in stack instead of modifying it in-place.
+     */
     func insert(_ intervals: [[Int]], _ newInterval: [Int]) -> [[Int]] {
         guard intervals.count > 0 else { return newInterval.count > 0 ? [newInterval] : intervals }
         var sorted = (intervals + [newInterval]).sorted { $0[0] < $1[0] }
         var stack = [sorted.removeFirst()]
+        var stackTop = stack.last!
         
         for interval in sorted {
-            var stackTop = stack.removeLast()
-            
             if interval[0] > stackTop[1] {
-                stack.append(stackTop)  // Intervals do not overlap
-                stack.append(interval)
-            } else {
+                stack.append(interval)  // intervals do not overlap, insert as is.
+                stackTop = interval
+            } else {                    // intervals do overlap, merge
                 stackTop[1] = max(interval[1], stackTop[1])
-                stack.append(stackTop)  // Intervals overlap, merge
+                stack.removeLast()      // update the last element of the stack
+                stack.append(stackTop)
             }
         }
+        print(stack)
         return stack
     }
 }
