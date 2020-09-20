@@ -1,11 +1,16 @@
 class Solution {
+    var visitMap = [[Int]]()
     
     func uniquePathsIII(_ grid: [[Int]]) -> Int {
         
-        // Key here is to NOT to use a memo, and to provide a local
-        // copy of visited-map to each iteration (otherwise we will concern finding one OPTIMAL route, here
-        // we are concerned to find ALL plausible routes that go over all walkable cells.
-        // Swift does a copy of the grid only if it is modified.
+        // Key here is to use global visitation map (shared by all iterations), and to take a local "snapshot"
+        // of the cell we are currently traversing (visitation map) and restoring it before returning from
+        // backtracking so other paths can traverse to that location if need be. This way we can avoid creating
+        // local copy of the visitation map in each iteration.
+        // Here we are attempting to find ALL plausible routes that go over all walkable cells, no optimization.
+        // Time complexity O(3^N), space complexity O(N)
+
+        visitMap = grid
         var openCount = 0
         var start = (0,0)
         
@@ -17,38 +22,36 @@ class Solution {
             }
         }
         
-        return move(start.0, start.1, grid, openCount)
+        return move(start.0, start.1, openCount)
     }
 
-    func move(_ x: Int, _ y: Int, _ g: [[Int]], _ openCount: Int) -> Int {
+    func move(_ x: Int, _ y: Int, _ openCount: Int) -> Int {
+        // Check if this is a valid path
+        if x < 0  || y < 0 || y >= visitMap.count || x >= visitMap[0].count { return 0 }
+        if visitMap[y][x] == -1 || visitMap[y][x] == 3 { return 0 }
 
-        // check if this is a valid path
-        if x < 0  || y < 0 || y >= g.count || x >= g[0].count { return 0 }
-        if g[y][x] == -1 || g[y][x] == 3 { return 0 }
-
-        // we found an end
-        if g[y][x] == 2 {
+        if visitMap[y][x] == 2 {            // We found an end
             if openCount == 0 {
-                return 1
+                return 1                    // One path found fulfilling requirements
             }
             return 0
         }
-        var g = g   // make our own copy
-        g[y][x] = 3 // mark it moved.
+
+        let temp = visitMap[y][x]           // Make a note of this cells status
+        visitMap[y][x] = 3                  // Mark it visited for this and child iterations
 
         var partialResult = 0
         
         // attempt to move north
-        partialResult += move(x, y-1, g, openCount-1)
- 
+        partialResult += move(x, y-1, openCount-1)
         // attempt to move south
-        partialResult += move(x, y+1, g, openCount-1)
- 
+        partialResult += move(x, y+1, openCount-1)
         // attempt to move west
-        partialResult += move(x-1, y, g, openCount-1)
- 
+        partialResult += move(x-1, y, openCount-1)
         // attempt to move east
-        partialResult += move(x+1, y, g, openCount-1)
+        partialResult += move(x+1, y, openCount-1)
+        
+        visitMap[y][x] = temp               // Restore the map so other recursions can visit this cell.
         
         return partialResult
     }
