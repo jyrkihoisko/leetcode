@@ -1,11 +1,11 @@
 class Solution {
-    var memo = [Int : Int]()
     
     func uniquePathsIII(_ grid: [[Int]]) -> Int {
         
         // Key here is to NOT to use a memo, and to provide a local
         // copy of visited-map to each iteration (otherwise we will concern finding one OPTIMAL route, here
         // we are concerned to find ALL plausible routes that go over all walkable cells.
+        // Swift does a copy of the grid only if it is modified.
         var openCount = 0
         var start = (0,0)
         
@@ -21,10 +21,11 @@ class Solution {
     }
 
     func move(_ x: Int, _ y: Int, _ g: [[Int]], _ openCount: Int) -> Int {
-        print("at coordinate: (\(x), \(y)), content: \(g[y][x]), openCount: \(openCount)")
+
         // check if this is a valid path
-        //if x < 0  || y < 0 || y >= g.count || x >= g[0].count { return 0 }
-        
+        if x < 0  || y < 0 || y >= g.count || x >= g[0].count { return 0 }
+        if g[y][x] == -1 || g[y][x] == 3 { return 0 }
+
         // we found an end
         if g[y][x] == 2 {
             if openCount == 0 {
@@ -32,32 +33,23 @@ class Solution {
             }
             return 0
         }
-        var g = g // make our own copy
+        var g = g   // make our own copy
         g[y][x] = 3 // mark it moved.
-                
+
         var partialResult = 0
+        
         // attempt to move north
-        if y-1 >= 0 && (g[y-1][x] == 0 || g[y-1][x] == 2) {
-            partialResult += move(x, y-1, g, openCount-1)
-        }
+        partialResult += move(x, y-1, g, openCount-1)
  
         // attempt to move south
-        if y+1 < g.count && (g[y+1][x] == 0 || g[y+1][x] == 2) {
-            partialResult += move(x, y+1, g, openCount-1)
-        }
+        partialResult += move(x, y+1, g, openCount-1)
  
         // attempt to move west
-        if x-1 >= 0 && (g[y][x-1] == 0 || g[y][x-1] == 2) {
-            partialResult += move(x-1, y, g, openCount-1)
-        }
+        partialResult += move(x-1, y, g, openCount-1)
  
         // attempt to move east
-        if x+1 < g[0].count && (g[y][x+1] == 0 || g[y][x+1] == 2) {
-            partialResult += move(x+1, y, g, openCount-1)
-        }
- 
-        memo[x*100 + y] = partialResult
-
+        partialResult += move(x+1, y, g, openCount-1)
+        
         return partialResult
     }
 }
